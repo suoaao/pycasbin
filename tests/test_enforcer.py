@@ -1,3 +1,4 @@
+# coding: utf-8
 import casbin
 import os
 from unittest import TestCase
@@ -52,8 +53,8 @@ class TestConfig(TestCase):
     def test_enforce_ip_match(self):
         e = get_enforcer(get_examples("ipmatch_model.conf"),
                          get_examples("ipmatch_policy.csv"))
-        self.assertTrue(e.enforce('192.168.2.1', 'data1', 'read'))
-        self.assertFalse(e.enforce('192.168.3.1', 'data1', 'read'))
+        self.assertTrue(e.enforce(u'192.168.2.1', 'data1', 'read'))
+        self.assertFalse(e.enforce(u'192.168.3.1', 'data1', 'read'))
 
     def test_enforce_key_match(self):
         e = get_enforcer(get_examples("keymatch_model.conf"),

@@ -1,3 +1,4 @@
+# coding: utf-8
 import os
 from casbin.config import Config
 from unittest import TestCase

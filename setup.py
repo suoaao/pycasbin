@@ -16,10 +16,11 @@ setuptools.setup(
     url="https://github.com/casbin/pycasbin",
     keywords=["casbin", "rbac", "access control", "abac", "acl", "permission"],
     packages=setuptools.find_packages(),
-    install_requires=['simpleeval>=0.9.8'],
-    python_requires=">=3.3",
+    install_requires=['simpleeval==0.9.8', 'ipaddress==1.0.22'],
+    python_requires=">=2.7",
     license="Apache 2.0",
     classifiers=[
+        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
