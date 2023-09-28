@@ -26,5 +26,5 @@ class Assertion:
             elif count == 4:
                 self.rm.add_link(rule[0], rule[1], rule[2], rule[3])
 
-        log.log_print("Role links for: " + self.key)
+        log.log_print(f"Role links for: {self.key}")
         self.rm.print_roles()

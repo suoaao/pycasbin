@@ -37,12 +37,10 @@ class Enforcer:
                 self.init_with_file(model, adapter)
             else:
                 self.init_with_adapter(model, adapter)
-                pass
+        elif isinstance(adapter, str):
+            return RuntimeError("Invalid parameters for enforcer.")
         else:
-            if isinstance(adapter, str):
-                return RuntimeError("Invalid parameters for enforcer.")
-            else:
-                self.init_with_model_and_adapter(model, adapter)
+            self.init_with_model_and_adapter(model, adapter)
 
     def init_with_file(self, model_path, policy_path):
         """initializes an enforcer with a model file and a policy file."""
@@ -126,7 +124,6 @@ class Enforcer:
         """sets the current watcher."""
 
         self.watcher = watcher
-        pass
 
     def set_role_manager(self, rm):
         """sets the current role manager."""
@@ -206,10 +203,7 @@ class Enforcer:
         if not self.enabled:
             return False
 
-        functions = {}
-        for key, val in self.fm.get_functions().items():
-            functions[key] = val
-
+        functions = dict(self.fm.get_functions().items())
         if "g" in self.model.model.keys():
             for key, ast in self.model.model["g"].items():
                 rm = ast.rm
@@ -228,49 +222,52 @@ class Enforcer:
 
         policy_len = len(self.model.model["p"]["p"].policy)
 
-        if not 0 == policy_len:
-            for i, pvals in enumerate(self.model.model["p"]["p"].policy):
-                parameters = dict()
-                for j, token in enumerate(self.model.model["r"]["r"].tokens):
-                    parameters[token] = rvals[j]
-
+        if policy_len != 0:
+            for pvals in self.model.model["p"]["p"].policy:
+                parameters = {
+                    token: rvals[j]
+                    for j, token in enumerate(self.model.model["r"]["r"].tokens)
+                }
                 for j, token in enumerate(self.model.model["p"]["p"].tokens):
                     parameters[token] = pvals[j]
 
                 result = expression.evaluate(exp_string, parameters, functions)
 
-                if isinstance(result, bool):
-                    if not result:
-                        policy_effects.append(Effector.INDETERMINATE)
-                        continue
+                if (
+                    isinstance(result, bool)
+                    and not result
+                    or not isinstance(result, bool)
+                    and isinstance(result, float)
+                    and result == 0
+                ):
+                    policy_effects.append(Effector.INDETERMINATE)
+                    continue
+                elif isinstance(result, bool):
+                    pass
                 elif isinstance(result, float):
-                    if 0 == result:
-                        policy_effects.append(Effector.INDETERMINATE)
-                        continue
-                    else:
-                        matcher_results.append(result)
+                    matcher_results.append(result)
                 else:
                     raise RuntimeError("matcher result should be bool, int or float")
 
-                if "p_eft" in parameters.keys():
+                if "p_eft" in parameters:
                     eft = parameters["p_eft"]
-                    if "allow" == eft:
+                    if eft == "allow":
                         policy_effects.append(Effector.ALLOW)
-                    elif "deny" == eft:
+                    elif eft == "deny":
                         policy_effects.append(Effector.DENY)
                     else:
                         policy_effects.append(Effector.INDETERMINATE)
                 else:
                     policy_effects.append(Effector.ALLOW)
 
-                if "priority(p_eft) || deny" == self.model.model["e"]["e"].value:
+                if self.model.model["e"]["e"].value == "priority(p_eft) || deny":
                     break
 
         else:
-            parameters = dict()
-            for j, token in enumerate(self.model.model["r"]["r"].tokens):
-                parameters[token] = rvals[j]
-
+            parameters = {
+                token: rvals[j]
+                for j, token in enumerate(self.model.model["r"]["r"].tokens)
+            }
             for token in self.model.model["p"]["p"].tokens:
                 parameters[token] = ""
 
@@ -285,10 +282,8 @@ class Enforcer:
 
         # Log request.
         if log.get_logger().is_enabled():
-            req_str = "Request: "
-            req_str = req_str + ", ".join([str(v) for v in rvals])
-
-            req_str = req_str + " ---> %s" % result
+            req_str = "Request: " + ", ".join([str(v) for v in rvals])
+            req_str += f" ---> {result}"
             log.log_print(req_str)
 
         return result

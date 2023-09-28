@@ -16,7 +16,7 @@ class Config:
     _data = dict()
 
     def __init__(self):
-        self._data = dict()
+        self._data = {}
 
     @staticmethod
     def new_config(conf_name):
@@ -58,23 +58,27 @@ class Config:
             line = f.readline()
 
             if not line:
-                if len(buf) > 0:
+                if buf:
                     self._write(section, line_num, buf)
                 break
             line = line.strip()
 
-            if '' == line or self.DEFAULT_COMMENT == line[0:1] or self.DEFAULT_COMMENT_SEM == line[0:1]:
+            if (
+                line == ''
+                or self.DEFAULT_COMMENT == line[:1]
+                or self.DEFAULT_COMMENT_SEM == line[:1]
+            ):
                 can_write = True
                 continue
-            elif '[' == line[0:1] and ']' == line[-1]:
-                if len(buf) > 0:
+            elif line[:1] == '[' and line[-1] == ']':
+                if buf:
                     self._write(section, line_num, buf)
                     can_write = False
                 section = line[1:-1]
             else:
                 p = ''
                 if self.DEFAULT_MULTI_LINE_SEPARATOR == line[-1]:
-                    p = line[0:-1].strip()
+                    p = line[:-1].strip()
                 else:
                     p = line
                     can_write = True
@@ -88,7 +92,9 @@ class Config:
         option_val = buf.split('=', 1)
 
         if len(option_val) != 2:
-            raise RuntimeError('parse the content error : line {} , {} = ?'.format(line_num, option_val[0]))
+            raise RuntimeError(
+                f'parse the content error : line {line_num} , {option_val[0]} = ?'
+            )
 
         option = option_val[0].strip()
         value = option_val[1].strip()

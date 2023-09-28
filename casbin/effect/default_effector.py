@@ -15,13 +15,7 @@ class DefaultEffector(Effector):
                     break
 
         elif expr == "!some(where (p_eft == deny))":
-            result = True
-
-            for eft in effects:
-                if eft == self.DENY:
-                    result = False
-                    break
-
+            result = all(eft != self.DENY for eft in effects)
         elif expr == "some(where (p_eft == allow)) && !some(where (p_eft == deny))":
             for eft in effects:
                 if eft == self.ALLOW:
@@ -33,10 +27,7 @@ class DefaultEffector(Effector):
         elif expr == "priority(p_eft) || deny":
             for eft in effects:
                 if eft != self.INDETERMINATE:
-                    if eft == self.ALLOW:
-                        result = True
-                    else:
-                        result = False
+                    result = eft == self.ALLOW
                     break
         else:
             raise RuntimeError("unsupported effect")
