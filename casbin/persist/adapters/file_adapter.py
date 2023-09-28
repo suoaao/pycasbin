@@ -23,10 +23,8 @@ class FileAdapter(persist.Adapter):
 
     def _load_policy_file(self, model):
         with open(self._file_path, "rb") as file:
-            line = file.readline()
-            while line:
+            while line := file.readline():
                 persist.load_policy_line(line.decode().strip(), model)
-                line = file.readline()
 
     def _save_policy_file(self, text):
         pass

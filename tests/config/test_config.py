@@ -7,7 +7,7 @@ from unittest import TestCase
 class TestConfig(TestCase):
     def test_new_config(self):
         path = os.path.split(os.path.realpath(__file__))[0]
-        path = os.path.abspath(path + "/test.ini")
+        path = os.path.abspath(f"{path}/test.ini")
 
         config = Config.new_config(path)
 

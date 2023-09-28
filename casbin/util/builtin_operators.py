@@ -11,9 +11,7 @@ def key_match(key1, key2):
     if i == -1:
         return key1 == key2
 
-    if len(key1) > i:
-        return key1[:i] == key2[:i]
-    return key1 == key2[:i]
+    return key1[:i] == key2[:i] if len(key1) > i else key1 == key2[:i]
 
 
 def key_match_func(*args):
@@ -76,11 +74,7 @@ def key_match3_func(*args):
 def regex_match(key1, key2):
     """determines whether key1 matches the pattern of key2 in regular expression."""
 
-    res = re.match(key2, key1)
-    if res:
-        return True
-    else:
-        return False
+    return bool(res := re.match(key2, key1))
 
 
 def regex_match_func(*args):

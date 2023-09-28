@@ -11,15 +11,12 @@ def remove_comments(s):
     """removes the comments starting with # in the text."""
 
     pos = s.find("#")
-    if pos == -1:
-        return s
-
-    return s[0:pos].strip()
+    return s if pos == -1 else s[:pos].strip()
 
 
 def array_remove_duplicates(s):
     """removes any duplicated elements in a string array."""
-    found = dict()
+    found = {}
     j = 0
     for x in s:
         if x not in found.keys():

@@ -9,7 +9,7 @@ class RoleManager(RoleManager):
     max_hierarchy_level = 0
 
     def __init__(self, max_hierarchy_level):
-        self.all_roles = dict()
+        self.all_roles = {}
         self.max_hierarchy_level = max_hierarchy_level
 
     def has_role(self, name):
@@ -26,8 +26,8 @@ class RoleManager(RoleManager):
 
     def add_link(self, name1, name2, *domain):
         if len(domain) == 1:
-            name1 = domain[0] + "::" + name1
-            name2 = domain[0] + "::" + name2
+            name1 = f"{domain[0]}::{name1}"
+            name2 = f"{domain[0]}::{name2}"
         elif len(domain) > 1:
             return RuntimeError("error: domain should be 1 parameter")
 
@@ -37,8 +37,8 @@ class RoleManager(RoleManager):
 
     def delete_link(self, name1, name2, *domain):
         if len(domain) == 1:
-            name1 = domain[0] + "::" + name1
-            name2 = domain[0] + "::" + name2
+            name1 = f"{domain[0]}::{name1}"
+            name2 = f"{domain[0]}::{name2}"
         elif len(domain) > 1:
             return RuntimeError("error: domain should be 1 parameter")
 
@@ -51,8 +51,8 @@ class RoleManager(RoleManager):
 
     def has_link(self, name1, name2, *domain):
         if len(domain) == 1:
-            name1 = domain[0] + "::" + name1
-            name2 = domain[0] + "::" + name2
+            name1 = f"{domain[0]}::{name1}"
+            name2 = f"{domain[0]}::{name2}"
         elif len(domain) > 1:
             return RuntimeError("error: domain should be 1 parameter")
 
@@ -68,12 +68,12 @@ class RoleManager(RoleManager):
 
     def get_roles(self, name, *domain):
         if len(domain) == 1:
-            name = domain[0] + "::" + name
+            name = f"{domain[0]}::{name}"
         elif len(domain) > 1:
             return RuntimeError("error: domain should be 1 parameter")
 
         if not self.has_role(name):
-            return dict()
+            return {}
 
         roles = self.create_role(name).get_roles()
         if len(domain) == 1:
@@ -86,18 +86,12 @@ class RoleManager(RoleManager):
         if not self.has_role(name):
             return RuntimeError("error: name does not exist")
 
-        names = []
-        for role in self.all_roles.values():
-            if role.has_direct_role(name):
-                names.append(name)
-
-        return names
+        return [name for role in self.all_roles.values() if role.has_direct_role(name)]
 
     def print_roles(self):
         line = []
         for role in self.all_roles.values():
-            text = role.to_string()
-            if text:
+            if text := role.to_string():
                 line.append(text)
 
         log.log_print(", ".join(line))
@@ -133,18 +127,10 @@ class Role:
         if hierarchy_level <= 0:
             return False
 
-        for role in self.roles:
-            if role.has_role(name, hierarchy_level - 1):
-                return True
-
-        return False
+        return any(role.has_role(name, hierarchy_level - 1) for role in self.roles)
 
     def has_direct_role(self, name):
-        for role in self.roles:
-            if role.name == name:
-                return True
-
-        return False
+        return any(role.name == name for role in self.roles)
 
     def to_string(self):
         if len(self.roles) == 0:
@@ -153,13 +139,9 @@ class Role:
         names = ", ".join(self.get_roles())
 
         if len(self.roles) == 1:
-            return self.name + " < " + names
+            return f"{self.name} < {names}"
         else:
-            return self.name + " < (" + names + ")"
+            return f"{self.name} < ({names})"
 
     def get_roles(self):
-        names = []
-        for role in self.roles:
-            names.append(role.name)
-
-        return names
+        return [role.name for role in self.roles]

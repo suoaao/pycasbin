@@ -14,7 +14,7 @@ class Model(Policy):
     }
 
     def _load_assertion(self, cfg, sec, key):
-        value = cfg.get(self.section_name_map[sec] + "::" + key)
+        value = cfg.get(f"{self.section_name_map[sec]}::{key}")
 
         return self.add_def(sec, key, value)
 
@@ -26,10 +26,10 @@ class Model(Policy):
         ast.key = key
         ast.value = value
 
-        if "r" == sec or "p" == sec:
+        if sec in ["r", "p"]:
             ast.tokens = ast.value.split(", ")
             for i,token in enumerate(ast.tokens):
-                ast.tokens[i] = key + "_" + token
+                ast.tokens[i] = f"{key}_{token}"
         else:
             ast.value = util.remove_comments(util.escape_assertion(ast.value))
 
@@ -41,10 +41,7 @@ class Model(Policy):
         return True
 
     def _get_key_suffix(self, i):
-        if i == 1:
-            return ""
-
-        return str(i)
+        return "" if i == 1 else str(i)
 
     def _load_section(self, cfg, sec):
         i = 1

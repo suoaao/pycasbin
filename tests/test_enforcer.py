@@ -13,7 +13,7 @@ def get_enforcer(model=None, adapter=None, enable_log=False):
 
 
 def get_examples(path):
-    examples_path = os.path.split(os.path.realpath(__file__))[0] + "/../examples/"
+    examples_path = f"{os.path.split(os.path.realpath(__file__))[0]}/../examples/"
     return os.path.abspath(examples_path + path)
 
 
